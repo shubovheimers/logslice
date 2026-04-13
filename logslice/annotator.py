@@ -58,6 +58,10 @@ def annotate_lines(
 ) -> Iterator[LogLine]:
     """Yield lines with annotations applied according to *opts*.
 
+    Annotation order is: labels first, then source tag, then sequence number.
+    This ensures the sequence number always appears as the outermost (leftmost)
+    prefix, making it easy to identify line positions at a glance.
+
     If *opts* is ``None`` or not enabled, lines are yielded unchanged.
     """
     if opts is None or not opts.enabled():
