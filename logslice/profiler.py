@@ -52,6 +52,12 @@ class PipelineProfile:
             return 0.0
         return max(ends) - min(starts)
 
+    def slowest_stage(self) -> Optional[str]:
+        """Return the name of the stage with the highest elapsed time, or None if no stages exist."""
+        if not self.timers:
+            return None
+        return max(self.timers, key=lambda name: self.timers[name].elapsed)
+
     def as_dict(self) -> dict:
         return {
             "total_elapsed_s": round(self.total_elapsed(), 6),
@@ -70,10 +76,12 @@ class PipelineProfile:
 
 def format_profile(profile: PipelineProfile) -> str:
     d = profile.as_dict()
+    slowest = profile.slowest_stage()
     lines = [
         f"Total time : {d['total_elapsed_s']:.4f}s",
         f"Lines      : {d['line_count']}",
         f"Throughput : {d['lines_per_second']} lines/s",
+        f"Slowest    : {slowest if slowest else 'n/a'}",
         "Stages:",
     ]
     for stage, elapsed in d["stages"].items():
