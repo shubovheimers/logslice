@@ -22,7 +22,14 @@ def filter_by_time(
     start: Optional[datetime] = None,
     end: Optional[datetime] = None,
 ) -> Iterator[LogLine]:
-    """Yield log lines whose timestamp falls within [start, end]."""
+    """Yield log lines whose timestamp falls within [start, end].
+
+    Lines without a parsed timestamp are skipped.
+    """
+    if start and end and start > end:
+        raise ValueError(
+            f"start ({start!r}) must not be later than end ({end!r})"
+        )
     for line in lines:
         if line.timestamp is None:
             continue
