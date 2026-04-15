@@ -17,6 +17,16 @@ class TruncateOptions:
     ellipsis: str = _ELLIPSIS
     truncate_from: str = "end"  # "end" or "start"
 
+    def __post_init__(self):
+        if self.truncate_from not in ("end", "start"):
+            raise ValueError(
+                f"truncate_from must be 'end' or 'start', got {self.truncate_from!r}"
+            )
+        if self.max_width < 1:
+            raise ValueError(
+                f"max_width must be at least 1, got {self.max_width}"
+            )
+
 
 def truncate_text(text: str, opts: TruncateOptions) -> str:
     """Truncate a single string to fit within opts.max_width characters."""
