@@ -63,3 +63,19 @@ def count_lines(path: str, encoding: str = "utf-8") -> int:
         for _ in fh:
             total += 1
     return total
+
+
+def is_supported_file(path: str) -> bool:
+    """Return True if the file extension is a supported log format.
+
+    Accepts plain text files (no extension or any non-compressed extension)
+    as well as explicitly supported compressed formats (.gz, .bz2).
+
+    Args:
+        path: Path to the file to check.
+    """
+    ext = os.path.splitext(path)[1].lower()
+    # Compressed formats must be explicitly supported; plain text is always ok.
+    if ext in (".gz", ".bz2"):
+        return ext in SUPPORTED_EXTENSIONS
+    return True
