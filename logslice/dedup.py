@@ -65,3 +65,21 @@ def count_duplicates(lines: Iterable[LogLine], key_fn: Optional[Callable[[LogLin
         else:
             seen.add(key)
     return dupes
+
+
+def duplicate_lines(
+    lines: Iterable[LogLine],
+    key_fn: Optional[Callable[[LogLine], str]] = None,
+) -> Iterator[LogLine]:
+    """Yield only the lines that are duplicates (i.e. seen at least once before).
+
+    Useful for inspecting *what* is being deduplicated rather than just a count.
+    """
+    fn = key_fn or _default_key
+    seen: set[str] = set()
+    for line in lines:
+        key = fn(line)
+        if key in seen:
+            yield line
+        else:
+            seen.add(key)
