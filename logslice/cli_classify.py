@@ -46,6 +46,11 @@ def add_classify_subparser(subparsers: argparse._SubParsersAction) -> None:  # n
 
 
 def _parse_rules(raw: List[str]) -> List[ClassifyRule]:
+    """Parse raw NAME:PATTERN strings into ClassifyRule objects.
+
+    Emits a warning to stderr and skips any entry that does not contain
+    the required colon separator.
+    """
     rules: List[ClassifyRule] = []
     for item in raw:
         if ":" not in item:
@@ -53,7 +58,15 @@ def _parse_rules(raw: List[str]) -> List[ClassifyRule]:
                   file=sys.stderr)
             continue
         name, _, pattern = item.partition(":")
-        rules.append(ClassifyRule(name=name.strip(), pattern=pattern.strip()))
+        name = name.strip()
+        pattern = pattern.strip()
+        if not name:
+            print(f"[logslice] Skipping rule with empty name: {item!r}", file=sys.stderr)
+            continue
+        if not pattern:
+            print(f"[logslice] Skipping rule with empty pattern: {item!r}", file=sys.stderr)
+            continue
+        rules.append(ClassifyRule(name=name, pattern=pattern))
     return rules
 
 
