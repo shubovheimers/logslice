@@ -57,3 +57,27 @@ def scroll_opts_from_args(args: argparse.Namespace) -> Optional[ScrollOptions]:
             max_windows=args.scroll_max_windows,
         )
     return None
+
+
+def validate_scroll_args(args: argparse.Namespace) -> None:
+    """Raise :class:`argparse.ArgumentTypeError` if scroll argument values are invalid.
+
+    Should be called after :func:`argparse.ArgumentParser.parse_args` to catch
+    semantic errors that argparse cannot enforce with ``type=int`` alone.
+    """
+    if args.scroll_window < 1:
+        raise argparse.ArgumentTypeError(
+            f"--scroll-window must be at least 1, got {args.scroll_window}"
+        )
+    if args.scroll_step < 1:
+        raise argparse.ArgumentTypeError(
+            f"--scroll-step must be at least 1, got {args.scroll_step}"
+        )
+    if args.scroll_start < 0:
+        raise argparse.ArgumentTypeError(
+            f"--scroll-start must be 0 or greater, got {args.scroll_start}"
+        )
+    if args.scroll_max_windows is not None and args.scroll_max_windows < 1:
+        raise argparse.ArgumentTypeError(
+            f"--scroll-max-windows must be at least 1, got {args.scroll_max_windows}"
+        )
