@@ -20,6 +20,8 @@ class CollapseOptions:
     def __post_init__(self) -> None:
         if self.min_repeats < 2:
             raise ValueError("min_repeats must be >= 2")
+        if "{n}" not in self.label:
+            raise ValueError("label template must contain '{n}' placeholder")
 
 
 def _message_key(line: LogLine) -> str:
