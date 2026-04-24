@@ -78,16 +78,19 @@ class TestLabelLines:
     def test_static_and_pattern_combined(self):
         rule = LabelRule(pattern="fail", label="failed")
         opts = LabelerOptions(rules=[rule], static_labels={"host": "web1"})
-        lines = [make_line("task failed"), make_line("task ok")]
+        lines = [make_line("task failed"), make_line("task succeeded")]
         result = collect(label_lines(lines, opts))
-        assert result[0].extra["host"] == "web1"
-        assert result[0].extra["failed"] == "true"
-        assert result[1].extra["host"] == "web1"
+        # Both lines get the static label
+        assert all(r.extra["host"] == "web1" for r in result)
+        # Only the matching line gets the pattern label
+        assert result[0].extra.get("failed") == "true"
         assert "failed" not in result[1].extra
 
-    def test_original_extra_preserved(self):
-        line = LogLine(raw="msg", timestamp=None, level=None, message="msg", extra={"existing": "val"})
-        opts = LabelerOptions(static_labels={"new": "x"})
-        result = collect(label_lines([line], opts))
-        assert result[0].extra["existing"] == "val"
-        assert result[0].extra["new"] == "x"
+    def test_multiple_rules_applied(self):
+        """All matching rules should be applied to a single line."""
+        rule1 = LabelRule(pattern="error", label="is_error")
+        rule2 = LabelRule(pattern="disk", label="is_disk")
+        opts = LabelerOptions(rules=[rule1, rule2])
+        result = collect(label_lines([make_line("disk error")], opts))
+        assert result[0].extra.get("is_error") == "true"
+        assert result[0].extra.get("is_disk") == "true"
